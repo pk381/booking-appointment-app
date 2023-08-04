@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 const notFoundController = require('./controllers/not_found');
 
 // importing routes
-const routesUser = require('./routes/user');
+const routesUser = require('./routes/expense');
 
 // static files
 app.use(express.static(path.join(__dirname, 'public')));

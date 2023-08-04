@@ -1,27 +1,28 @@
-let appointments = document.getElementById("appoinments");
+
+let expenses = document.getElementById("items");
 
 let details = document.querySelectorAll("input");
 
 
-document.getElementById("btn").addEventListener("click",async (e) => {
+document.getElementById("submit").addEventListener("click",async (e) => {
 
   e.preventDefault();
 
   let obj = {
-    email: details[2].value,
-    phone: details[1].value,
-    name: details[0].value
+    amount: details[0].value,
+    description: details[1].value,
+    category: document.getElementById("category").value
   };
 
   try {
 
-    const res = await axios.post('http://localhost:4000/add-user', obj)
+    const res = await axios.post('http://localhost:4000/add-expense', obj)
 
-    newAppointment(res.data.user);
+    newAppointment(res.data.expense);
 
-    details[2].value = "";
-    details[1].value = "";
     details[0].value = "";
+    details[1].value = "";
+    document.getElementById("category").value = "";
     
   } catch(err) {
     console.log(err);
@@ -31,9 +32,9 @@ document.getElementById("btn").addEventListener("click",async (e) => {
 window.addEventListener("DOMContentLoaded", async () => {
 
   try {
-    const res = await axios.get("http://localhost:4000/get-users");
-    for (var i = 0; i < res.data.users.length; i++) {
-      newAppointment(res.data.users[i]);
+    const res = await axios.get("http://localhost:4000/get-expenses");
+    for (var i = 0; i < res.data.expenses.length; i++) {
+      newAppointment(res.data.expenses[i]);
     }
   } 
   catch(err) {
@@ -45,30 +46,26 @@ function newAppointment(obj) {
   
   let newItem = document.createElement("li");
 
-  newItem.className = "item";
+  newItem.className = "list-group-item m-1";
 
   newItem.appendChild(
-    document.createTextNode("" + obj.name + " " + obj.email + " " + obj.phone)
+    document.createTextNode("" + obj.amount + " " + obj.description + " " + obj.category)
   );
 
-  let div = document.createElement("div");
-
   let deleteBtn = document.createElement("button");
-  deleteBtn.className = "btn";
+  deleteBtn.className = "btn btn-danger btn-sm float-right";
 
   deleteBtn.appendChild(document.createTextNode("Delete"));
 
-  div.appendChild(deleteBtn);
-
-  newItem.appendChild(div);
+  newItem.appendChild(deleteBtn);
 
   deleteBtn.onclick = async (e)=>{
 
     let li = e.target.parentElement;
 
     try{
-     await axios.delete("http://localhost:4000/delete-user/" + obj.email);
-     appointments.removeChild(li);
+     await axios.delete("http://localhost:4000/delete-expense/" + obj.id);
+     expenses.removeChild(li);
     }
     catch(err){
       console.log(err);
@@ -78,22 +75,22 @@ function newAppointment(obj) {
 
   let editBtn = document.createElement("button");
 
-  editBtn.className = "btn";
+  editBtn.className = "btn btn-dark btn-sm mx-1 float-right";
   editBtn.appendChild(document.createTextNode("Edit"));
-  div.appendChild(editBtn);
-  newItem.appendChild(div);
+
+  newItem.appendChild(editBtn);
 
   editBtn.onclick = async (e)=>{
 
     let li = e.target.parentElement;
-    appointments.removeChild(li);
+    expenses.removeChild(li);
 
-    details[0].value = obj.name;
-    details[1].value = obj.phone;
-    details[2].value = obj.email;
+    details[0].value = obj.amount;
+    details[1].value = obj.description;
+    document.getElementById("category").value = obj.category;
     
     try{
-      await axios.delete('http://localhost:4000/delete-user/'+obj.email);
+      await axios.delete('http://localhost:4000/delete-expense/'+obj.id);
     }
     catch(err){
       console.log(err);
@@ -101,5 +98,5 @@ function newAppointment(obj) {
     
   };
 
-  appointments.appendChild(newItem);
+  expenses.appendChild(newItem);
 }
